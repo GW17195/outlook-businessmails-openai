@@ -27,7 +27,7 @@ export interface AppState {
   summary: string;
   translation: string;
 }
-
+const openaiapikey = "you-api-key";
 export default class App extends React.Component<AppProps, AppState> {
   constructor(props) {
     super(props);
@@ -206,6 +206,7 @@ export default class App extends React.Component<AppProps, AppState> {
   generateText = async () => {
     // eslint-disable-next-line no-undef
     console.log("start in generate text123547");
+    console.log("openaiapikey", openaiapikey);
     var current = this;
     if (current.state.startText.length === 0) {
       console.log("错误没有输入文本0");
@@ -229,7 +230,7 @@ export default class App extends React.Component<AppProps, AppState> {
     console.log("startTextSave:" + "[" + current.state.startTextSave + "]");
     const configuration = new Configuration({
       //apiKey: "sk-proj-8yGEcGp2R0FxHt5d4Y0rT3BlbkFJXHuIQzkOCGCLkOoIlOvL",
-      apiKey: "sk-proj-V0KmYBjbZDr9LsCdymd8T3BlbkFJ8tmYhizFiGltO0UmDkFV", //收费密钥
+      apiKey: openaiapikey, //收费密钥
     });
     delete configuration.baseOptions.headers["User-Agent"];
     const openai = new OpenAIApi(configuration);
@@ -316,7 +317,7 @@ export default class App extends React.Component<AppProps, AppState> {
         Office.context.mailbox.item.body.getAsync(Office.CoercionType.Text, async function (asyncResult) {
           //const hf = new HfInference("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");
           const configuration = new Configuration({
-            apiKey: "sk-proj-V0KmYBjbZDr9LsCdymd8T3BlbkFJ8tmYhizFiGltO0UmDkFV",
+            apiKey: openaiapikey,
           });
           const openai = new OpenAIApi(configuration);
 
@@ -375,7 +376,7 @@ export default class App extends React.Component<AppProps, AppState> {
         Office.context.mailbox.item.body.getAsync(Office.CoercionType.Text, async function (asyncResult) {
           //const hf = new HfInference("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");
           const configuration = new Configuration({
-            apiKey: "sk-proj-V0KmYBjbZDr9LsCdymd8T3BlbkFJ8tmYhizFiGltO0UmDkFV",
+            apiKey: openaiapikey,
           });
           const openai = new OpenAIApi(configuration);
 
@@ -470,7 +471,7 @@ export default class App extends React.Component<AppProps, AppState> {
       try {
         Office.context.mailbox.item.body.getAsync(Office.CoercionType.Text, async function (asyncResult) {
           const configuration = new Configuration({
-            apiKey: "sk-proj-V0KmYBjbZDr9LsCdymd8T3BlbkFJ8tmYhizFiGltO0UmDkFV",
+            apiKey: openaiapikey,
           });
           const openai = new OpenAIApi(configuration);
 
@@ -626,7 +627,7 @@ export default class App extends React.Component<AppProps, AppState> {
     try {
       console.log("Starting generateText function12");
 
-      const apiKey = "sk-proj-8yGEcGp2R0FxHt5d4Y0rT3BlbkFJXHuIQzkOCGCLkOoIlOvL"; // Replace with your actual OpenAI API key
+      const apiKey = openaiapikey; // Replace with your actual OpenAI API key
       console.log("4444444");
       const configuration = new Configuration({
         apiKey: apiKey,
