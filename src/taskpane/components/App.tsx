@@ -328,25 +328,55 @@ export default class App extends React.Component<AppProps, AppState> {
           let startpos = mailText.search(regex);
           let submailtext = "";
           let getstartflag = false;
-          if (startpos !== -1) {
+          if (startpos !== -1 && getstartflag === false) {
             submailtext = mailText.substring(0, startpos);
             getstartflag = true;
           }
           regex = /发件人:[\s\S]*发送时间:[\s\S]*收件人:/;
           startpos = mailText.search(regex);
-          if (startpos !== -1) {
+          if (startpos !== -1 && getstartflag === false) {
+            submailtext = mailText.substring(0, startpos);
+            getstartflag = true;
+          }
+          regex = /发件人：[\s\S]*发送时间：[\s\S]*收件人：/;
+          startpos = mailText.search(regex);
+          if (startpos !== -1 && getstartflag === false) {
             submailtext = mailText.substring(0, startpos);
             getstartflag = true;
           }
           regex = /发件人:[\s\S]*日期:[\s\S]*收件人:/;
           startpos = mailText.search(regex);
-          if (startpos !== -1) {
+          if (startpos !== -1 && getstartflag === false) {
+            submailtext = mailText.substring(0, startpos);
+            getstartflag = true;
+          }
+          regex = /发件人：[\s\S]*日期：[\s\S]*收件人：/;
+          startpos = mailText.search(regex);
+          if (startpos !== -1 && getstartflag === false) {
+            submailtext = mailText.substring(0, startpos);
+            getstartflag = true;
+          }
+          regex = /发件人：[\s\S]*日 期：[\s\S]*收件人：/;
+          startpos = mailText.search(regex);
+          if (startpos !== -1 && getstartflag === false) {
             submailtext = mailText.substring(0, startpos);
             getstartflag = true;
           }
           regex = /From:[\s\S]*Date:[\s\S]*To:/;
           startpos = mailText.search(regex);
-          if (startpos !== -1) {
+          if (startpos !== -1 && getstartflag === false) {
+            submailtext = mailText.substring(0, startpos);
+            getstartflag = true;
+          }
+          regex = /From:[\s\S]*Sent:[\s\S]*Cc:/;
+          startpos = mailText.search(regex);
+          if (startpos !== -1 && getstartflag === false) {
+            submailtext = mailText.substring(0, startpos);
+            getstartflag = true;
+          }
+          regex = /From:[\s\S]*Sent:/;
+          startpos = mailText.search(regex);
+          if (startpos !== -1 && getstartflag === false) {
             submailtext = mailText.substring(0, startpos);
             getstartflag = true;
           }
