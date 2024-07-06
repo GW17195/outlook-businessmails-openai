@@ -311,6 +311,7 @@ export default class App extends React.Component<AppProps, AppState> {
     }
   };
 
+  //use this one
   translateMail0(): Promise<any> {
     return new Office.Promise(function (resolve, reject) {
       try {
@@ -322,21 +323,53 @@ export default class App extends React.Component<AppProps, AppState> {
           const openai = new OpenAIApi(configuration);
 
           let mailText = asyncResult.value.split(" ").slice(0, 1000).join(" "); //完整的邮件body，所有对话过程
-          const senderName = Office.context.mailbox.item.from.displayName; //发件人名字
-          const senderEmail = Office.context.mailbox.item.from.emailAddress; //发件地址
-          let substr = senderName + " " + "<" + senderEmail + ">";
-          let index = mailText.indexOf(substr);
+          let regex = /From:[\s\S]*Sent:[\s\S]*To:/;
+          //let regex = /From.*\nSent:.*\nTo:.*\n/;
+          let startpos = mailText.search(regex);
           let submailtext = "";
-          if (index !== -1) {
-            submailtext = mailText.substring(0, index); //利用邮件人和邮件地址切割获取第一份邮件
-          } else {
+          let getstartflag = false;
+          if (startpos !== -1) {
+            submailtext = mailText.substring(0, startpos);
+            getstartflag = true;
+          }
+          regex = /发件人:[\s\S]*发送时间:[\s\S]*收件人:/;
+          startpos = mailText.search(regex);
+          if (startpos !== -1) {
+            submailtext = mailText.substring(0, startpos);
+            getstartflag = true;
+          }
+          regex = /发件人:[\s\S]*日期:[\s\S]*收件人:/;
+          startpos = mailText.search(regex);
+          if (startpos !== -1) {
+            submailtext = mailText.substring(0, startpos);
+            getstartflag = true;
+          }
+          regex = /From:[\s\S]*Date:[\s\S]*To:/;
+          startpos = mailText.search(regex);
+          if (startpos !== -1) {
+            submailtext = mailText.substring(0, startpos);
+            getstartflag = true;
+          }
+          if (startpos === -1 && getstartflag === false) {
             submailtext = mailText;
           }
-          substr = "发件人:";
-          index = submailtext.lastIndexOf(substr);
-          if (index !== -1) {
-            submailtext = submailtext.substring(0, index); //去掉收件人：四个字符，最终这是最近一封邮件的内容
-          }
+
+
+          // const senderName = Office.context.mailbox.item.from.displayName; //发件人名字
+          // const senderEmail = Office.context.mailbox.item.from.emailAddress; //发件地址
+          // let substr = senderName + " " + "<" + senderEmail + ">";
+          // let index = mailText.indexOf(substr);
+          // let submailtext = "";
+          // if (index !== -1) {
+          //   submailtext = mailText.substring(0, index); //利用邮件人和邮件地址切割获取第一份邮件
+          // } else {
+          //   submailtext = mailText;
+          // }
+          // substr = "发件人:";
+          // index = submailtext.lastIndexOf(substr);
+          // if (index !== -1) {
+          //   submailtext = submailtext.substring(0, index); //去掉收件人：四个字符，最终这是最近一封邮件的内容
+          // }
 
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const messages1: ChatCompletionRequestMessage[] = [
