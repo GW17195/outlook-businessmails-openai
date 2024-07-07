@@ -597,6 +597,7 @@ export default class App extends React.Component<AppProps, AppState> {
         <>
           <p>Briefly describe what you want to write in the mail:</p>
           <textarea
+            style={{ fontSize: "15px" }}
             className="ms-welcome"
             defaultValue={this.state.startTextSave}
             onChange={(e) => this.setState({ startText: e.target.value })}
@@ -615,6 +616,7 @@ export default class App extends React.Component<AppProps, AppState> {
           <this.ProgressSection />
           <textarea
             className="ms-welcome"
+            style={{ fontSize: "15px" }}
             value={this.state.generatedText}
             onChange={(e) => this.setState({ finalMailText: e.target.value })}
             rows={15}
@@ -632,6 +634,7 @@ export default class App extends React.Component<AppProps, AppState> {
           <p>Translation of email:</p>
           <textarea
             className="ms-welcome"
+            style={{ fontSize: "15px" }}
             value={this.state.generatedTextChinese}
             // onChange={(e) => this.setState({ finalMailText: e.target.value })}
             rows={10}
@@ -666,7 +669,13 @@ export default class App extends React.Component<AppProps, AppState> {
             Summarize mail
           </DefaultButton>
           <this.ProgressSection />
-          <textarea className="ms-welcome" defaultValue={this.state.summary} rows={15} cols={40} />
+          <textarea
+            className="ms-welcome"
+            style={{ fontSize: "15px" }}
+            defaultValue={this.state.summary}
+            rows={15}
+            cols={40}
+          />
         </>
       );
     } else {
@@ -687,7 +696,13 @@ export default class App extends React.Component<AppProps, AppState> {
             Translate mail
           </DefaultButton>
           <this.ProgressSection />
-          <textarea className="ms-welcome" defaultValue={this.state.translation} rows={15} cols={40} />
+          <textarea
+            className="ms-welcome"
+            style={{ fontSize: "15px" }}
+            defaultValue={this.state.translation}
+            rows={15}
+            cols={40}
+          />
         </>
       );
     } else {
