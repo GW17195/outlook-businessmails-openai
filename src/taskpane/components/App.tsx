@@ -24,11 +24,13 @@ export interface AppState {
   isGenerateBusinessMailActive: boolean;
   isSummarizeMailActive: boolean;
   isTranslationMailActive: boolean;
+  isSettingActive: boolean;
   summary: string;
   translation: string;
   testtext: string;
+  openaiapikeysaved: string;
 }
-const openaiapikey = "you-api-key";
+// const openaiapikey = "";
 export default class App extends React.Component<AppProps, AppState> {
   constructor(props) {
     super(props);
@@ -36,6 +38,7 @@ export default class App extends React.Component<AppProps, AppState> {
     let isGenerateBusinessMailActive;
     let isSummarizeMailActive;
     let isTranslationMailActive;
+    let isSettingActive;
 
     //get the current URL
     const url = window.location.href;
@@ -46,6 +49,7 @@ export default class App extends React.Component<AppProps, AppState> {
       isGenerateBusinessMailActive = true;
       isSummarizeMailActive = false;
       isTranslationMailActive = false;
+      isSettingActive = false;
     }
     //check if the URL contains the parameter "summarize"
     if (url.indexOf("summary") > -1) {
@@ -53,6 +57,7 @@ export default class App extends React.Component<AppProps, AppState> {
       isGenerateBusinessMailActive = false;
       isSummarizeMailActive = true;
       isTranslationMailActive = false;
+      isSettingActive = false;
     }
     //check if the URL contains the parameter "summarize"
     if (url.indexOf("translation") > -1) {
@@ -60,6 +65,15 @@ export default class App extends React.Component<AppProps, AppState> {
       isGenerateBusinessMailActive = false;
       isSummarizeMailActive = false;
       isTranslationMailActive = true;
+      isSettingActive = false;
+    }
+
+    if (url.indexOf("setting") > -1) {
+      console.log("Action: setting");
+      isGenerateBusinessMailActive = false;
+      isSummarizeMailActive = false;
+      isTranslationMailActive = false;
+      isSettingActive = true;
     }
     let mailidsavedforsummarize = localStorage.getItem("mailidsavedforsummarize");
     let mailidsavedfortranslate = localStorage.getItem("mailidsavedfortranslate");
@@ -72,7 +86,10 @@ export default class App extends React.Component<AppProps, AppState> {
     if (mailidsavedfortranslate === currentmailid) {
       tmptraslation = localStorage.getItem("translationsaved");
     }
-
+    let openaiapikey = localStorage.getItem("openaiapikey");
+    if (openaiapikey === null) {
+      //openaiapikey = "请输入密钥";
+    }
     this.state = {
       generatedText: "",
       generatedTextChinese: "",
@@ -83,22 +100,47 @@ export default class App extends React.Component<AppProps, AppState> {
       isGenerateBusinessMailActive: isGenerateBusinessMailActive,
       isSummarizeMailActive: isSummarizeMailActive,
       isTranslationMailActive: isTranslationMailActive,
+      isSettingActive: isSettingActive,
       summary: tmpsummary,
       translation: tmptraslation,
       testtext: "",
+      openaiapikeysaved: openaiapikey,
     };
   }
 
   showGenerateBusinessMail = () => {
-    this.setState({ isGenerateBusinessMailActive: true, isSummarizeMailActive: false, isTranslationMailActive: false });
+    this.setState({
+      isGenerateBusinessMailActive: true,
+      isSummarizeMailActive: false,
+      isTranslationMailActive: false,
+      isSettingActive: false,
+    });
   };
 
   showSummarizeMail = () => {
-    this.setState({ isGenerateBusinessMailActive: false, isSummarizeMailActive: true, isTranslationMailActive: false });
+    this.setState({
+      isGenerateBusinessMailActive: false,
+      isSummarizeMailActive: true,
+      isTranslationMailActive: false,
+      isSettingActive: false,
+    });
   };
 
   showTranslateMail = () => {
-    this.setState({ isGenerateBusinessMailActive: false, isSummarizeMailActive: false, isTranslationMailActive: true });
+    this.setState({
+      isGenerateBusinessMailActive: false,
+      isSummarizeMailActive: false,
+      isTranslationMailActive: true,
+      isSettingActive: false,
+    });
+  };
+  showSetting = () => {
+    this.setState({
+      isGenerateBusinessMailActive: false,
+      isSummarizeMailActive: false,
+      isTranslationMailActive: false,
+      isSettingActive: true,
+    });
   };
 
   handleExpandClick = async () => {
@@ -219,8 +261,8 @@ export default class App extends React.Component<AppProps, AppState> {
   generateText = async () => {
     // eslint-disable-next-line no-undef
     console.log("start in generate text123547");
-    console.log("openaiapikey", openaiapikey);
     var current = this;
+    let openaiapikey = localStorage.getItem("openaiapikey");
     if (current.state.startText.length === 0) {
       console.log("错误没有输入文本0");
       current.setState({ generatedText: "输入错误:没有输入文本!" });
@@ -323,12 +365,22 @@ export default class App extends React.Component<AppProps, AppState> {
       this.setState({ summary: error, isLoading: false });
     }
   };
+  onSave = async () => {
+    try {
+      this.setState({ isLoading: true });
+      localStorage.setItem("openaiapikey", this.state.openaiapikeysaved);
+      this.setState({ isLoading: false });
+    } catch (error) {
+      this.setState({ summary: error, isLoading: false });
+    }
+  };
   //use this one
   translateMail0(): Promise<any> {
     return new Office.Promise(function (resolve, reject) {
       try {
         Office.context.mailbox.item.body.getAsync(Office.CoercionType.Text, async function (asyncResult) {
           //const hf = new HfInference("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");
+          let openaiapikey = localStorage.getItem("openaiapikey");
           const configuration = new Configuration({
             apiKey: openaiapikey,
           });
@@ -467,6 +519,9 @@ export default class App extends React.Component<AppProps, AppState> {
       try {
         Office.context.mailbox.item.body.getAsync(Office.CoercionType.Text, async function (asyncResult) {
           //const hf = new HfInference("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");
+          let openaiapikey = localStorage.getItem("openaiapikey");
+          //aaaaaaaaaaaaaaaaa
+
           const configuration = new Configuration({
             apiKey: openaiapikey,
           });
@@ -570,6 +625,7 @@ export default class App extends React.Component<AppProps, AppState> {
     return new Office.Promise(function (resolve, reject) {
       try {
         Office.context.mailbox.item.body.getAsync(Office.CoercionType.Text, async function (asyncResult) {
+          let openaiapikey = localStorage.getItem("openaiapikey");
           const configuration = new Configuration({
             apiKey: openaiapikey,
           });
@@ -744,10 +800,39 @@ export default class App extends React.Component<AppProps, AppState> {
       return <div> </div>;
     }
   };
+  settingSection = () => {
+    if (this.state.isSettingActive) {
+      return (
+        <>
+          <p style={{ fontSize: "15px", fontWeight: "bold" }}>参数设置</p>
+          <p style={{ fontSize: "15px", fontWeight: "bold" }}>密钥</p>
+          <input
+            type="text"
+            placeholder="请输入密钥"
+            onChange={(e) => this.setState({ openaiapikeysaved: e.target.value })}
+            defaultValue={this.state.openaiapikeysaved}
+            style={{ display: "block", width: "320px", boxSizing: "border-box", fontSize: "15px" }}
+          />
+          <p>
+            <DefaultButton
+              className="ms-welcome__action"
+              iconProps={{ iconName: "ChevronRight" }}
+              onClick={this.onSave}
+            >
+              保存设置
+            </DefaultButton>
+          </p>
+          <this.ProgressSection />
+        </>
+      );
+    } else {
+      return <div> </div>;
+    }
+  };
   generateText1 = () => {
     try {
       console.log("Starting generateText function12");
-
+      let openaiapikey = localStorage.getItem("openaiapikey");
       const apiKey = openaiapikey; // Replace with your actual OpenAI API key
       console.log("4444444");
       const configuration = new Configuration({
@@ -822,6 +907,15 @@ export default class App extends React.Component<AppProps, AppState> {
               生成邮件
             </DefaultButton>
           </p>
+          <p>
+            <DefaultButton
+              className="ms-welcome__action"
+              iconProps={{ iconName: "ChevronRight" }}
+              onClick={this.showSetting}
+            >
+              参数设置
+            </DefaultButton>
+          </p>
           <p>{this.state.testtext}</p>
           {/* <div>
             <DefaultButton onClick={this.handleExpandClick}>Generate Text for debug</DefaultButton>
@@ -835,6 +929,9 @@ export default class App extends React.Component<AppProps, AppState> {
           </div>
           <div>
             <this.translationMailSection />
+          </div>
+          <div>
+            <this.settingSection />
           </div>
         </main>
       </div>
