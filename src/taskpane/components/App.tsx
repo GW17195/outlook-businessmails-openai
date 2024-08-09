@@ -425,7 +425,13 @@ export default class App extends React.Component<AppProps, AppState> {
             messages: messages1,
           });
           let chinesecontent = response1.data.choices[0].message.content;
-          let sumfinalres = "中文翻译:\n" + chinesecontent + "\n\n" + "original content:\n" + submailtext;
+          let sumfinalres =
+            "中文翻译:\n" +
+            chinesecontent +
+            "\n\n" +
+            "***************************************\n" +
+            "original content:\n" +
+            submailtext;
           //resolve(response.data.choices[0].message.content);
           //resolve(response1.data.choices[0].message.content);
           resolve(sumfinalres);
@@ -522,7 +528,12 @@ export default class App extends React.Component<AppProps, AppState> {
           });
           let summarymailreschinese = response1.data.choices[0].message.content;
           let sumfinalres =
-            "中文总结:\n" + summarymailreschinese + "\n\n" + "original summarization:\n" + summarymailres;
+            "中文总结:\n" +
+            summarymailreschinese +
+            "\n\n" +
+            "***************************************\n" +
+            "original summarization:\n" +
+            summarymailres;
           //resolve(response.data.choices[0].message.content);
           //resolve(response1.data.choices[0].message.content);
           resolve(sumfinalres);
@@ -595,7 +606,9 @@ export default class App extends React.Component<AppProps, AppState> {
     if (this.state.isGenerateBusinessMailActive) {
       return (
         <>
-          <p>Briefly describe what you want to write in the mail:</p>
+          {/* <p>Briefly describe what you want to write in the mail:</p> */}
+
+          <p>简要描述您想在邮件中写的内容:</p>
           <textarea
             style={{ fontSize: "15px" }}
             className="ms-welcome"
@@ -610,7 +623,7 @@ export default class App extends React.Component<AppProps, AppState> {
               iconProps={{ iconName: "ChevronRight" }}
               onClick={this.generateText}
             >
-              Generate text
+              生成英文邮件
             </DefaultButton>
           </p>
           <this.ProgressSection />
@@ -628,10 +641,10 @@ export default class App extends React.Component<AppProps, AppState> {
               iconProps={{ iconName: "ChevronRight" }}
               onClick={this.insertIntoMail}
             >
-              Insert into English mail
+              插入英文邮件
             </DefaultButton>
           </p>
-          <p>Translation of email:</p>
+          <p>邮件翻译:</p>
           <textarea
             className="ms-welcome"
             style={{ fontSize: "15px" }}
@@ -660,14 +673,16 @@ export default class App extends React.Component<AppProps, AppState> {
     if (this.state.isSummarizeMailActive) {
       return (
         <>
-          <p>Summarize mail</p>
-          <DefaultButton
-            className="ms-welcome__action"
-            iconProps={{ iconName: "ChevronRight" }}
-            onClick={this.onSummarize}
-          >
-            Summarize mail
-          </DefaultButton>
+          <p>总结邮件</p>
+          <p>
+            <DefaultButton
+              className="ms-welcome__action"
+              iconProps={{ iconName: "ChevronRight" }}
+              onClick={this.onSummarize}
+            >
+              总结邮件
+            </DefaultButton>
+          </p>
           <this.ProgressSection />
           <textarea
             className="ms-welcome"
@@ -687,14 +702,16 @@ export default class App extends React.Component<AppProps, AppState> {
     if (this.state.isTranslationMailActive) {
       return (
         <>
-          <p>Translate mail</p>
-          <DefaultButton
-            className="ms-welcome__action"
-            iconProps={{ iconName: "ChevronRight" }}
-            onClick={this.onTranslate}
-          >
-            Translate mail
-          </DefaultButton>
+          <p>翻译邮件</p>
+          <p>
+            <DefaultButton
+              className="ms-welcome__action"
+              iconProps={{ iconName: "ChevronRight" }}
+              onClick={this.onTranslate}
+            >
+              翻译邮件
+            </DefaultButton>
+          </p>
           <this.ProgressSection />
           <textarea
             className="ms-welcome"
@@ -764,9 +781,9 @@ export default class App extends React.Component<AppProps, AppState> {
             <DefaultButton
               className="ms-welcome__action"
               iconProps={{ iconName: "ChevronRight" }}
-              onClick={this.showGenerateBusinessMail}
+              onClick={this.showTranslateMail}
             >
-              Generate business mail
+              翻译邮件
             </DefaultButton>
           </p>
           <p>
@@ -775,22 +792,22 @@ export default class App extends React.Component<AppProps, AppState> {
               iconProps={{ iconName: "ChevronRight" }}
               onClick={this.showSummarizeMail}
             >
-              Summarize mail
+              总结邮件
             </DefaultButton>
           </p>
           <p>
             <DefaultButton
               className="ms-welcome__action"
               iconProps={{ iconName: "ChevronRight" }}
-              onClick={this.showTranslateMail}
+              onClick={this.showGenerateBusinessMail}
             >
-              Translate mail
+              生成邮件
             </DefaultButton>
           </p>
           {/* <div>
             <DefaultButton onClick={this.handleExpandClick}>Generate Text for debug</DefaultButton>
           </div> */}
-
+          <div style={{ width: "100%", height: "2px", backgroundColor: "#000" }} />
           <div>
             <this.BusinessMailSection />
           </div>
