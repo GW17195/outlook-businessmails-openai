@@ -26,6 +26,7 @@ export interface AppState {
   isTranslationMailActive: boolean;
   summary: string;
   translation: string;
+  testtext: string;
 }
 const openaiapikey = "you-api-key";
 export default class App extends React.Component<AppProps, AppState> {
@@ -60,6 +61,17 @@ export default class App extends React.Component<AppProps, AppState> {
       isSummarizeMailActive = false;
       isTranslationMailActive = true;
     }
+    let mailidsavedforsummarize = localStorage.getItem("mailidsavedforsummarize");
+    let mailidsavedfortranslate = localStorage.getItem("mailidsavedfortranslate");
+    let currentmailid = Office.context.mailbox.item.itemId;
+    let tmpsummary = "";
+    let tmptraslation = "";
+    if (mailidsavedforsummarize === currentmailid) {
+      tmpsummary = localStorage.getItem("summarysaved");
+    }
+    if (mailidsavedfortranslate === currentmailid) {
+      tmptraslation = localStorage.getItem("translationsaved");
+    }
 
     this.state = {
       generatedText: "",
@@ -71,8 +83,9 @@ export default class App extends React.Component<AppProps, AppState> {
       isGenerateBusinessMailActive: isGenerateBusinessMailActive,
       isSummarizeMailActive: isSummarizeMailActive,
       isTranslationMailActive: isTranslationMailActive,
-      summary: "",
-      translation: "",
+      summary: tmpsummary,
+      translation: tmptraslation,
+      testtext: "",
     };
   }
 
@@ -320,7 +333,8 @@ export default class App extends React.Component<AppProps, AppState> {
             apiKey: openaiapikey,
           });
           const openai = new OpenAIApi(configuration);
-
+          let mailid = Office.context.mailbox.item.itemId;
+          localStorage.setItem("mailidsavedfortranslate", mailid);
           let mailText = asyncResult.value.split(" ").slice(0, 1000).join(" "); //完整的邮件body，所有对话过程
           let maxpos = mailText.length - 1;
           let regex = /From:[\s\S]*Sent:[\s\S]*To:/;
@@ -434,6 +448,7 @@ export default class App extends React.Component<AppProps, AppState> {
             submailtext;
           //resolve(response.data.choices[0].message.content);
           //resolve(response1.data.choices[0].message.content);
+          localStorage.setItem("translationsaved", sumfinalres);
           resolve(sumfinalres);
           //let mailtextaddsm = mailText + "senderName:[" + senderName + "] " + "senderEmail:[" + senderEmail + "]";
           //resolve("submailtext" + submailtext + "[" + mailtextaddsm + "]");
@@ -460,6 +475,8 @@ export default class App extends React.Component<AppProps, AppState> {
           let mailText = asyncResult.value.split(" ").slice(0, 1000).join(" "); //完整的邮件body，所有对话过程
           const senderName = Office.context.mailbox.item.from.displayName; //发件人名字
           const senderEmail = Office.context.mailbox.item.from.emailAddress; //发件地址
+          let mailid = Office.context.mailbox.item.itemId;
+          localStorage.setItem("mailidsavedforsummarize", mailid);
           let substr = senderName + " " + "<" + senderEmail + ">";
           let index = mailText.indexOf(substr);
           let submailtext = "";
@@ -536,6 +553,7 @@ export default class App extends React.Component<AppProps, AppState> {
             summarymailres;
           //resolve(response.data.choices[0].message.content);
           //resolve(response1.data.choices[0].message.content);
+          localStorage.setItem("summarysaved", sumfinalres);
           resolve(sumfinalres);
           //let mailtextaddsm = mailText + "senderName:[" + senderName + "] " + "senderEmail:[" + senderEmail + "]";
           //resolve("submailtext" + submailtext + "[" + mailtextaddsm + "]");
@@ -804,6 +822,7 @@ export default class App extends React.Component<AppProps, AppState> {
               生成邮件
             </DefaultButton>
           </p>
+          <p>{this.state.testtext}</p>
           {/* <div>
             <DefaultButton onClick={this.handleExpandClick}>Generate Text for debug</DefaultButton>
           </div> */}
