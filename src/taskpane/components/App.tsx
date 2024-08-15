@@ -29,7 +29,6 @@ export interface AppState {
   translation: string;
   testtext: string;
   openaiapikeysaved: string;
-  replytone: string;
 }
 // const openaiapikey = "";
 export default class App extends React.Component<AppProps, AppState> {
@@ -91,10 +90,6 @@ export default class App extends React.Component<AppProps, AppState> {
     if (openaiapikey === null) {
       //openaiapikey = "请输入密钥";
     }
-    let tone = localStorage.getItem("replytone");
-    if (tone === null) {
-      //
-    }
     this.state = {
       generatedText: "",
       generatedTextChinese: "",
@@ -110,7 +105,6 @@ export default class App extends React.Component<AppProps, AppState> {
       translation: tmptraslation,
       testtext: "",
       openaiapikeysaved: openaiapikey,
-      replytone: tone,
     };
   }
 
@@ -819,15 +813,6 @@ export default class App extends React.Component<AppProps, AppState> {
             defaultValue={this.state.openaiapikeysaved}
             style={{ display: "block", width: "310px", boxSizing: "border-box", fontSize: "15px" }}
           />
-          <p style={{ fontSize: "15px", fontWeight: "bold" }}>生成邮件参数配置:</p>
-          <textarea
-            className="ms-welcome"
-            style={{ fontSize: "15px" }}
-            placeholder="请输入生成邮件参数"
-            defaultValue={this.state.translation}
-            rows={5}
-            cols={40}
-          />
           <p style={{ fontSize: "15px", fontWeight: "bold" }}>翻译邮件参数配置:</p>
           <textarea
             className="ms-welcome"
@@ -842,6 +827,15 @@ export default class App extends React.Component<AppProps, AppState> {
             className="ms-welcome"
             style={{ fontSize: "15px" }}
             placeholder="请输入总结邮件参数"
+            defaultValue={this.state.translation}
+            rows={5}
+            cols={40}
+          />
+          <p style={{ fontSize: "15px", fontWeight: "bold" }}>生成邮件参数配置:</p>
+          <textarea
+            className="ms-welcome"
+            style={{ fontSize: "15px" }}
+            placeholder="请输入生成邮件参数"
             defaultValue={this.state.translation}
             rows={5}
             cols={40}
