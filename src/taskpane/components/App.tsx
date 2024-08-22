@@ -26,7 +26,9 @@ export interface AppState {
   isTranslationMailActive: boolean;
   isSettingActive: boolean;
   summary: string;
+  summaryparameters: string;
   translation: string;
+  translationparameters: string;
   testtext: string;
   openaiapikeysaved: string;
 }
@@ -90,6 +92,14 @@ export default class App extends React.Component<AppProps, AppState> {
     if (openaiapikey === null) {
       //openaiapikey = "请输入密钥";
     }
+    let translationparameters = localStorage.getItem("translationparameters");
+    if (translationparameters === null) {
+      //
+    }
+    let summaryparameters = localStorage.getItem("summaryparameters");
+    if (summaryparameters === null) {
+      //
+    }
     this.state = {
       generatedText: "",
       generatedTextChinese: "",
@@ -102,7 +112,9 @@ export default class App extends React.Component<AppProps, AppState> {
       isTranslationMailActive: isTranslationMailActive,
       isSettingActive: isSettingActive,
       summary: tmpsummary,
+      summaryparameters: summaryparameters,
       translation: tmptraslation,
+      translationparameters: translationparameters,
       testtext: "",
       openaiapikeysaved: openaiapikey,
     };
@@ -369,6 +381,8 @@ export default class App extends React.Component<AppProps, AppState> {
     try {
       this.setState({ isLoading: true });
       localStorage.setItem("openaiapikey", this.state.openaiapikeysaved);
+      localStorage.setItem("translationparameters", this.state.translationparameters);
+      localStorage.setItem("summaryparameters", this.state.summaryparameters);
       this.setState({ isLoading: false });
     } catch (error) {
       this.setState({ summary: error, isLoading: false });
@@ -479,11 +493,14 @@ export default class App extends React.Component<AppProps, AppState> {
           const messages1: ChatCompletionRequestMessage[] = [
             {
               role: "system",
-              content: "You are a helpful assistant that can translate text between languages.",
+              content:
+                "You are a helpful assistant that can translate text between languages." +
+                "The additional requirements are as follows." +
+                localStorage.getItem("translationparameters"),
             },
             {
               role: "user",
-              content: "Translate the following text into [Chinese]: " + submailtext,
+              content: "Translate the following text: " + submailtext,
             },
           ];
           const response1 = await openai.createChatCompletion({
@@ -492,7 +509,7 @@ export default class App extends React.Component<AppProps, AppState> {
           });
           let chinesecontent = response1.data.choices[0].message.content;
           let sumfinalres =
-            "中文翻译:\n" +
+            "翻译:\n" +
             chinesecontent +
             "\n\n" +
             "***************************************\n" +
@@ -549,7 +566,9 @@ export default class App extends React.Component<AppProps, AppState> {
             {
               role: "system",
               content:
-                "You are a helpful assistant that can help users to better manage emails. The mail thread can be made by multiple prompts.",
+                "You are a helpful assistant that can help users to better manage emails. The mail thread can be made by multiple prompts." +
+                "The additional requirements are as follows" +
+                localStorage.getItem("summaryparameters"),
             },
             {
               role: "user",
@@ -600,7 +619,7 @@ export default class App extends React.Component<AppProps, AppState> {
           });
           let summarymailreschinese = response1.data.choices[0].message.content;
           let sumfinalres =
-            "中文总结:\n" +
+            "总结:\n" +
             summarymailreschinese +
             "\n\n" +
             "***************************************\n" +
@@ -761,7 +780,7 @@ export default class App extends React.Component<AppProps, AppState> {
           <textarea
             className="ms-welcome"
             style={{ fontSize: "15px" }}
-            defaultValue={this.state.summary}
+            value={this.state.summary}
             rows={15}
             cols={40}
           />
@@ -790,7 +809,7 @@ export default class App extends React.Component<AppProps, AppState> {
           <textarea
             className="ms-welcome"
             style={{ fontSize: "15px" }}
-            defaultValue={this.state.translation}
+            value={this.state.translation}
             rows={15}
             cols={40}
           />
@@ -818,7 +837,8 @@ export default class App extends React.Component<AppProps, AppState> {
             className="ms-welcome"
             style={{ fontSize: "15px" }}
             placeholder="请输入翻译邮件参数"
-            defaultValue={this.state.translation}
+            defaultValue={this.state.translationparameters}
+            onChange={(e) => this.setState({ translationparameters: e.target.value })}
             rows={5}
             cols={40}
           />
@@ -827,7 +847,8 @@ export default class App extends React.Component<AppProps, AppState> {
             className="ms-welcome"
             style={{ fontSize: "15px" }}
             placeholder="请输入总结邮件参数"
-            defaultValue={this.state.translation}
+            defaultValue={this.state.summaryparameters}
+            onChange={(e) => this.setState({ summaryparameters: e.target.value })}
             rows={5}
             cols={40}
           />
