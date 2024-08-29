@@ -28,6 +28,7 @@ export interface AppState {
   summary: string;
   summaryparameters: string;
   translation: string;
+  originalsaved: string;
   translationparameters: string;
   testtext: string;
   openaiapikeysaved: string;
@@ -82,11 +83,13 @@ export default class App extends React.Component<AppProps, AppState> {
     let currentmailid = Office.context.mailbox.item.itemId;
     let tmpsummary = "";
     let tmptraslation = "";
+    let tmporiginalsaved = "";
     if (mailidsavedforsummarize === currentmailid) {
       tmpsummary = localStorage.getItem("summarysaved");
     }
     if (mailidsavedfortranslate === currentmailid) {
       tmptraslation = localStorage.getItem("translationsaved");
+      tmporiginalsaved = localStorage.getItem("originalsaved"); //原始邮件
     }
     let openaiapikey = localStorage.getItem("openaiapikey");
     if (openaiapikey === null) {
@@ -114,6 +117,7 @@ export default class App extends React.Component<AppProps, AppState> {
       summary: tmpsummary,
       summaryparameters: summaryparameters,
       translation: tmptraslation,
+      originalsaved: tmporiginalsaved,
       translationparameters: translationparameters,
       testtext: "",
       openaiapikeysaved: openaiapikey,
@@ -302,22 +306,44 @@ export default class App extends React.Component<AppProps, AppState> {
     delete configuration.baseOptions.headers["User-Agent"];
     const openai = new OpenAIApi(configuration);
     current.setState({ isLoading: true });
+    let originalsaved = current.state.originalsaved;
+    if (originalsaved === "") {
+      //
+    } else {
+      originalsaved = "发件人的邮件的内容如下:" + originalsaved;
+    }
     const response = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo",
-      //model: "gpt-4",
+      //model: "gpt-3.5-turbo",
+      model: "gpt-4",
       messages: [
         {
           role: "system",
-          content: "You are a helpful assistant that can help users to create content.",
+          content: "You are a helpful assistant that can help users to send simple email.",
           //content: "You are a helpful assistant that can help users to create professional business content.",
         },
         {
           role: "user",
-          content: "Turn the following text into a English mail.Do not be too loog.: " + current.state.startText,
+          content: originalsaved,
+        },
+        {
+          role: "assistant",
+          content: "ok.",
+        },
+        {
+          role: "user",
+          content: "我想用于回复的邮件内容如下:" + current.state.startText,
+        },
+        {
+          role: "assistant",
+          content: "ok.",
+        },
+        {
+          role: "user",
+          content: "结合发件人的邮件内容根据我提供的回复信息进行回复.",
         },
       ],
     });
-    current.setState({ generatedText: response.data.choices[0].message.content });
+    current.setState({ generatedText: originalsaved + response.data.choices[0].message.content });
 
     const messages1: ChatCompletionRequestMessage[] = [
       {
@@ -334,7 +360,8 @@ export default class App extends React.Component<AppProps, AppState> {
       },
     ];
     const response1 = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo",
+      model: "gpt-4",
+      //model: "gpt-3.5-turbo",
       messages: messages1,
     });
     console.log("chinese mail is" + response1.data.choices[0].message.content);
@@ -504,7 +531,8 @@ export default class App extends React.Component<AppProps, AppState> {
             },
           ];
           const response1 = await openai.createChatCompletion({
-            model: "gpt-3.5-turbo",
+            model: "gpt-4",
+            //model: "gpt-3.5-turbo",
             messages: messages1,
           });
           let chinesecontent = response1.data.choices[0].message.content;
@@ -518,6 +546,7 @@ export default class App extends React.Component<AppProps, AppState> {
           //resolve(response.data.choices[0].message.content);
           //resolve(response1.data.choices[0].message.content);
           localStorage.setItem("translationsaved", sumfinalres);
+          localStorage.setItem("originalsaved", submailtext); //原始邮件
           resolve(sumfinalres);
           //let mailtextaddsm = mailText + "senderName:[" + senderName + "] " + "senderEmail:[" + senderEmail + "]";
           //resolve("submailtext" + submailtext + "[" + mailtextaddsm + "]");
@@ -562,6 +591,19 @@ export default class App extends React.Component<AppProps, AppState> {
           if (index !== -1) {
             submailtext = submailtext.substring(0, index); //去掉收件人：四个字符，最终这是最近一封邮件的内容
           }
+          // const messages: ChatCompletionRequestMessage[] = [
+          //   {
+          //     role: "system",
+          //     content:
+          //       "You are a helpful assistant that can help users to better manage emails. The mail thread can be made by multiple prompts." +
+          //       "The additional requirements are as follows" +
+          //       localStorage.getItem("summaryparameters"),
+          //   },
+          //   {
+          //     role: "user",
+          //     content: "Only Summarize the following mail thread and summarize it with a bullet list: " + submailtext,
+          //   },
+          // ];
           const messages: ChatCompletionRequestMessage[] = [
             {
               role: "system",
@@ -575,9 +617,9 @@ export default class App extends React.Component<AppProps, AppState> {
               content: "Only Summarize the following mail thread and summarize it with a bullet list: " + submailtext,
             },
           ];
-
           const response = await openai.createChatCompletion({
-            model: "gpt-3.5-turbo",
+            model: "gpt-4",
+            //model: "gpt-3.5-turbo",
             messages: messages,
           });
           // const response = await hf.summarization({
@@ -614,7 +656,8 @@ export default class App extends React.Component<AppProps, AppState> {
             },
           ];
           const response1 = await openai.createChatCompletion({
-            model: "gpt-3.5-turbo",
+            model: "gpt-4",
+            //model: "gpt-3.5-turbo",
             messages: messages1,
           });
           let summarymailreschinese = response1.data.choices[0].message.content;
@@ -675,7 +718,8 @@ export default class App extends React.Component<AppProps, AppState> {
           ];
 
           const response = await openai.createChatCompletion({
-            model: "gpt-3.5-turbo",
+            model: "gpt-4",
+            //model: "gpt-3.5-turbo",
             messages: messages,
           });
           resolve(submailtext);
@@ -891,7 +935,8 @@ export default class App extends React.Component<AppProps, AppState> {
       const openai = new OpenAIApi(configuration);
       console.log("11111");
       const response = openai.createChatCompletion({
-        model: "gpt-3.5-turbo",
+        model: "gpt-4",
+        //model: "gpt-3.5-turbo",
         messages: [
           { role: "system", content: "You are a helpful assistant." },
           { role: "user", content: "Turn the following text into a professional business mail: " }
