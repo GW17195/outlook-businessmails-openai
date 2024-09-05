@@ -82,6 +82,7 @@ export default class App extends React.Component<AppProps, AppState> {
     }
     let mailidsavedforsummarize = localStorage.getItem("mailidsavedforsummarize");
     let mailidsavedfortranslate = localStorage.getItem("mailidsavedfortranslate");
+    let generatesectionemailid = localStorage.getItem("generatesectionemailid");
     let currentmailid = Office.context.mailbox.item.itemId;
     let tmpsummary = "";
     let tmptraslation = "";
@@ -91,7 +92,17 @@ export default class App extends React.Component<AppProps, AppState> {
     }
     if (mailidsavedfortranslate === currentmailid) {
       tmptraslation = localStorage.getItem("translationsaved");
-      tmporiginalsaved = localStorage.getItem("originalsaved"); //原始邮件
+      tmporiginalsaved = localStorage.getItem("originalsaved"); //原始邮件,没用了
+    }
+
+    let tmpstartTextSave = "";
+    let tmpgeneratedText = "";
+    let tmpgeneratedTextChinese = "";
+
+    if (generatesectionemailid === currentmailid) {
+      tmpstartTextSave = localStorage.getItem("startTextSave");
+      tmpgeneratedText = localStorage.getItem("generatedText");
+      tmpgeneratedTextChinese = localStorage.getItem("generatedTextChinese");
     }
     let openaiapikey = localStorage.getItem("openaiapikey");
     if (openaiapikey === null) {
@@ -115,10 +126,10 @@ export default class App extends React.Component<AppProps, AppState> {
       ischeckedbool = true;
     }
     this.state = {
-      generatedText: "",
-      generatedTextChinese: "",
+      generatedText: tmpgeneratedText,
+      generatedTextChinese: tmpgeneratedTextChinese,
       startText: "",
-      startTextSave: "",
+      startTextSave: tmpstartTextSave,
       finalMailText: "",
       isLoading: false,
       isGenerateBusinessMailActive: isGenerateBusinessMailActive,
@@ -423,6 +434,10 @@ export default class App extends React.Component<AppProps, AppState> {
     console.log("startTextSave after set:" + current.state.startTextSave);
     console.log("response:" + response.data.choices[0].message.content);
     console.log("generatedText", current.state.generatedText);
+    localStorage.setItem("startTextSave", current.state.startText);
+    localStorage.setItem("generatedText", current.state.generatedText);
+    localStorage.setItem("generatedTextChinese", current.state.generatedTextChinese);
+    localStorage.setItem("generatesectionemailid", Office.context.mailbox.item.itemId);
   };
 
   insertIntoMail = () => {
