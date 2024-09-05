@@ -287,6 +287,7 @@ export default class App extends React.Component<AppProps, AppState> {
     //current.setState({ generatedText: response});
   };
 
+  //use this one
   generateText = async () => {
     // eslint-disable-next-line no-undef
     console.log("start in generate text123547");
@@ -319,7 +320,8 @@ export default class App extends React.Component<AppProps, AppState> {
     delete configuration.baseOptions.headers["User-Agent"];
     const openai = new OpenAIApi(configuration);
     current.setState({ isLoading: true });
-    let originalsaved = current.state.originalsaved;
+    let originalsaved = await current.getMailContent();
+    //let originalsaved = current.state.originalsaved;//不用存的邮件主要是因为没生成就没有
     if (originalsaved === "") {
       //
     } else {
@@ -616,7 +618,89 @@ export default class App extends React.Component<AppProps, AppState> {
       }
     });
   }
-
+  getMailContent(): Promise<any> {
+    return new Office.Promise(function (resolve, reject) {
+      try {
+        Office.context.mailbox.item.body.getAsync(Office.CoercionType.Text, async function (asyncResult) {
+          let mailText = asyncResult.value.split(" ").slice(0, 1000).join(" "); //完整的邮件body，所有对话过程
+          let maxpos = mailText.length - 1;
+          let regex = /From:[\s\S]*Sent:[\s\S]*To:/;
+          //let regex = /From.*\nSent:.*\nTo:.*\n/;
+          let startpos = mailText.search(regex);
+          let submailtext = "";
+          let getstartflag = false;
+          if (startpos !== -1 && startpos < maxpos && getstartflag === false) {
+            maxpos = startpos;
+            submailtext = mailText.substring(0, startpos);
+            getstartflag = true;
+          }
+          // resolve("startposq" + startpos + "maxpos" + maxpos + "getstartflag" + getstartflag + ":" + submailtext);
+          regex = /发件人:[\s\S]*发送时间:[\s\S]*收件人:/;
+          startpos = mailText.search(regex);
+          if (startpos !== -1 && startpos < maxpos) {
+            maxpos = startpos;
+            submailtext = mailText.substring(0, startpos);
+            getstartflag = true;
+          }
+          regex = /发件人：[\s\S]*发送时间：[\s\S]*收件人：/;
+          startpos = mailText.search(regex);
+          if (startpos !== -1 && startpos < maxpos) {
+            maxpos = startpos;
+            submailtext = mailText.substring(0, startpos);
+            getstartflag = true;
+          }
+          regex = /发件人:[\s\S]*日期:[\s\S]*收件人:/;
+          startpos = mailText.search(regex);
+          if (startpos !== -1 && startpos < maxpos) {
+            maxpos = startpos;
+            submailtext = mailText.substring(0, startpos);
+            getstartflag = true;
+          }
+          regex = /发件人：[\s\S]*日期：[\s\S]*收件人：/;
+          startpos = mailText.search(regex);
+          if (startpos !== -1 && startpos < maxpos) {
+            maxpos = startpos;
+            submailtext = mailText.substring(0, startpos);
+            getstartflag = true;
+          }
+          regex = /发件人：[\s\S]*日 期：[\s\S]*收件人：/;
+          startpos = mailText.search(regex);
+          if (startpos !== -1 && startpos < maxpos) {
+            maxpos = startpos;
+            submailtext = mailText.substring(0, startpos);
+            getstartflag = true;
+          }
+          regex = /From:[\s\S]*Date:[\s\S]*To:/;
+          startpos = mailText.search(regex);
+          if (startpos !== -1 && startpos < maxpos) {
+            maxpos = startpos;
+            submailtext = mailText.substring(0, startpos);
+            getstartflag = true;
+          }
+          regex = /From:[\s\S]*Sent:[\s\S]*Cc:/;
+          startpos = mailText.search(regex);
+          if (startpos !== -1 && startpos < maxpos) {
+            maxpos = startpos;
+            submailtext = mailText.substring(0, startpos);
+            getstartflag = true;
+          }
+          regex = /From:[\s\S]*Sent:/;
+          startpos = mailText.search(regex);
+          if (startpos !== -1 && startpos < maxpos) {
+            maxpos = startpos;
+            submailtext = mailText.substring(0, startpos);
+            getstartflag = true;
+          }
+          if (startpos === -1 && getstartflag === false) {
+            submailtext = mailText;
+          }
+          resolve(submailtext);
+        });
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
   //use this one
   summarizeMail0(): Promise<any> {
     return new Office.Promise(function (resolve, reject) {
