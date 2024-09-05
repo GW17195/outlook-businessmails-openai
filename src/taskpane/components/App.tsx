@@ -485,8 +485,7 @@ export default class App extends React.Component<AppProps, AppState> {
             apiKey: openaiapikey,
           });
           const openai = new OpenAIApi(configuration);
-          let mailid = Office.context.mailbox.item.itemId;
-          localStorage.setItem("mailidsavedfortranslate", mailid);
+
           let mailText = asyncResult.value.split(" ").slice(0, 1000).join(" "); //完整的邮件body，所有对话过程
           let maxpos = mailText.length - 1;
           let regex = /From:[\s\S]*Sent:[\s\S]*To:/;
@@ -606,6 +605,8 @@ export default class App extends React.Component<AppProps, AppState> {
           //resolve(response1.data.choices[0].message.content);
           localStorage.setItem("translationsaved", sumfinalres);
           localStorage.setItem("originalsaved", submailtext); //原始邮件
+          let mailid = Office.context.mailbox.item.itemId;
+          localStorage.setItem("mailidsavedfortranslate", mailid);
           resolve(sumfinalres);
           //let mailtextaddsm = mailText + "senderName:[" + senderName + "] " + "senderEmail:[" + senderEmail + "]";
           //resolve("submailtext" + submailtext + "[" + mailtextaddsm + "]");
@@ -717,8 +718,7 @@ export default class App extends React.Component<AppProps, AppState> {
           //旧逻辑开始
           // const senderName = Office.context.mailbox.item.from.displayName; //发件人名字
           // const senderEmail = Office.context.mailbox.item.from.emailAddress; //发件地址
-          let mailid = Office.context.mailbox.item.itemId;
-          localStorage.setItem("mailidsavedforsummarize", mailid);
+
           // let substr = senderName + " " + "<" + senderEmail + ">";
           // let index = mailText.indexOf(substr);
           // let submailtext = "";
@@ -879,6 +879,8 @@ export default class App extends React.Component<AppProps, AppState> {
           //resolve(response.data.choices[0].message.content);
           //resolve(response1.data.choices[0].message.content);
           localStorage.setItem("summarysaved", sumfinalres);
+          let mailid = Office.context.mailbox.item.itemId;
+          localStorage.setItem("mailidsavedforsummarize", mailid);//放在最后是因为如果手动中断了程序，mailid是当前的，summarysaved却是上一封邮件的
           resolve(sumfinalres);
           //let mailtextaddsm = mailText + "senderName:[" + senderName + "] " + "senderEmail:[" + senderEmail + "]";
           //resolve("submailtext" + submailtext + "[" + mailtextaddsm + "]");
