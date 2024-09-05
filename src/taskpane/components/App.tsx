@@ -633,8 +633,8 @@ export default class App extends React.Component<AppProps, AppState> {
           //旧逻辑开始
           // const senderName = Office.context.mailbox.item.from.displayName; //发件人名字
           // const senderEmail = Office.context.mailbox.item.from.emailAddress; //发件地址
-          // let mailid = Office.context.mailbox.item.itemId;
-          // localStorage.setItem("mailidsavedforsummarize", mailid);
+          let mailid = Office.context.mailbox.item.itemId;
+          localStorage.setItem("mailidsavedforsummarize", mailid);
           // let substr = senderName + " " + "<" + senderEmail + ">";
           // let index = mailText.indexOf(substr);
           // let submailtext = "";
