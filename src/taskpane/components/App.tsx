@@ -630,23 +630,99 @@ export default class App extends React.Component<AppProps, AppState> {
           const openai = new OpenAIApi(configuration);
 
           let mailText = asyncResult.value.split(" ").slice(0, 1000).join(" "); //完整的邮件body，所有对话过程
-          const senderName = Office.context.mailbox.item.from.displayName; //发件人名字
-          const senderEmail = Office.context.mailbox.item.from.emailAddress; //发件地址
-          let mailid = Office.context.mailbox.item.itemId;
-          localStorage.setItem("mailidsavedforsummarize", mailid);
-          let substr = senderName + " " + "<" + senderEmail + ">";
-          let index = mailText.indexOf(substr);
+          //旧逻辑开始
+          // const senderName = Office.context.mailbox.item.from.displayName; //发件人名字
+          // const senderEmail = Office.context.mailbox.item.from.emailAddress; //发件地址
+          // let mailid = Office.context.mailbox.item.itemId;
+          // localStorage.setItem("mailidsavedforsummarize", mailid);
+          // let substr = senderName + " " + "<" + senderEmail + ">";
+          // let index = mailText.indexOf(substr);
+          // let submailtext = "";
+          // if (index !== -1) {
+          //   submailtext = mailText.substring(0, index); //利用邮件人和邮件地址切割获取第一份邮件
+          // } else {
+          //   submailtext = mailText;
+          // }
+          // substr = "发件人:";
+          // index = submailtext.lastIndexOf(substr);
+          // if (index !== -1) {
+          //   submailtext = submailtext.substring(0, index); //去掉收件人：四个字符，最终这是最近一封邮件的内容
+          // }
+          //旧逻辑结束
+
+          //new process logic start
+          let maxpos = mailText.length - 1;
+          let regex = /From:[\s\S]*Sent:[\s\S]*To:/;
+          //let regex = /From.*\nSent:.*\nTo:.*\n/;
+          let startpos = mailText.search(regex);
           let submailtext = "";
-          if (index !== -1) {
-            submailtext = mailText.substring(0, index); //利用邮件人和邮件地址切割获取第一份邮件
-          } else {
+          let getstartflag = false;
+          if (startpos !== -1 && startpos < maxpos && getstartflag === false) {
+            maxpos = startpos;
+            submailtext = mailText.substring(0, startpos);
+            getstartflag = true;
+          }
+          // resolve("startposq" + startpos + "maxpos" + maxpos + "getstartflag" + getstartflag + ":" + submailtext);
+          regex = /发件人:[\s\S]*发送时间:[\s\S]*收件人:/;
+          startpos = mailText.search(regex);
+          if (startpos !== -1 && startpos < maxpos) {
+            maxpos = startpos;
+            submailtext = mailText.substring(0, startpos);
+            getstartflag = true;
+          }
+          regex = /发件人：[\s\S]*发送时间：[\s\S]*收件人：/;
+          startpos = mailText.search(regex);
+          if (startpos !== -1 && startpos < maxpos) {
+            maxpos = startpos;
+            submailtext = mailText.substring(0, startpos);
+            getstartflag = true;
+          }
+          regex = /发件人:[\s\S]*日期:[\s\S]*收件人:/;
+          startpos = mailText.search(regex);
+          if (startpos !== -1 && startpos < maxpos) {
+            maxpos = startpos;
+            submailtext = mailText.substring(0, startpos);
+            getstartflag = true;
+          }
+          regex = /发件人：[\s\S]*日期：[\s\S]*收件人：/;
+          startpos = mailText.search(regex);
+          if (startpos !== -1 && startpos < maxpos) {
+            maxpos = startpos;
+            submailtext = mailText.substring(0, startpos);
+            getstartflag = true;
+          }
+          regex = /发件人：[\s\S]*日 期：[\s\S]*收件人：/;
+          startpos = mailText.search(regex);
+          if (startpos !== -1 && startpos < maxpos) {
+            maxpos = startpos;
+            submailtext = mailText.substring(0, startpos);
+            getstartflag = true;
+          }
+          regex = /From:[\s\S]*Date:[\s\S]*To:/;
+          startpos = mailText.search(regex);
+          if (startpos !== -1 && startpos < maxpos) {
+            maxpos = startpos;
+            submailtext = mailText.substring(0, startpos);
+            getstartflag = true;
+          }
+          regex = /From:[\s\S]*Sent:[\s\S]*Cc:/;
+          startpos = mailText.search(regex);
+          if (startpos !== -1 && startpos < maxpos) {
+            maxpos = startpos;
+            submailtext = mailText.substring(0, startpos);
+            getstartflag = true;
+          }
+          regex = /From:[\s\S]*Sent:/;
+          startpos = mailText.search(regex);
+          if (startpos !== -1 && startpos < maxpos) {
+            maxpos = startpos;
+            submailtext = mailText.substring(0, startpos);
+            getstartflag = true;
+          }
+          if (startpos === -1 && getstartflag === false) {
             submailtext = mailText;
           }
-          substr = "发件人:";
-          index = submailtext.lastIndexOf(substr);
-          if (index !== -1) {
-            submailtext = submailtext.substring(0, index); //去掉收件人：四个字符，最终这是最近一封邮件的内容
-          }
+          //new process logic end
 
           const messages: ChatCompletionRequestMessage[] = [
             {
@@ -711,7 +787,11 @@ export default class App extends React.Component<AppProps, AppState> {
             "\n\n" +
             "***************************************\n" +
             "original summarization:\n" +
-            summarymailres;
+            summarymailres +
+            "\n\n" +
+            "***************************************\n" +
+            "original mail:\n" +
+            submailtext;
           //resolve(response.data.choices[0].message.content);
           //resolve(response1.data.choices[0].message.content);
           localStorage.setItem("summarysaved", sumfinalres);
