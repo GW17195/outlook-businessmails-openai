@@ -617,14 +617,13 @@ export default class App extends React.Component<AppProps, AppState> {
     });
   }
 
+  //use this one
   summarizeMail0(): Promise<any> {
     return new Office.Promise(function (resolve, reject) {
       try {
         Office.context.mailbox.item.body.getAsync(Office.CoercionType.Text, async function (asyncResult) {
           //const hf = new HfInference("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");
           let openaiapikey = localStorage.getItem("openaiapikey");
-          //aaaaaaaaaaaaaaaaa
-
           const configuration = new Configuration({
             apiKey: openaiapikey,
           });
@@ -648,19 +647,7 @@ export default class App extends React.Component<AppProps, AppState> {
           if (index !== -1) {
             submailtext = submailtext.substring(0, index); //去掉收件人：四个字符，最终这是最近一封邮件的内容
           }
-          // const messages: ChatCompletionRequestMessage[] = [
-          //   {
-          //     role: "system",
-          //     content:
-          //       "You are a helpful assistant that can help users to better manage emails. The mail thread can be made by multiple prompts." +
-          //       "The additional requirements are as follows" +
-          //       localStorage.getItem("summaryparameters"),
-          //   },
-          //   {
-          //     role: "user",
-          //     content: "Only Summarize the following mail thread and summarize it with a bullet list: " + submailtext,
-          //   },
-          // ];
+
           const messages: ChatCompletionRequestMessage[] = [
             {
               role: "system",
