@@ -33,6 +33,7 @@ export interface AppState {
   generateparameters: string;
   testtext: string;
   openaiapikeysaved: string;
+  ischecked: boolean; //是否根据邮件原文生成邮件
 }
 // const openaiapikey = "";
 export default class App extends React.Component<AppProps, AppState> {
@@ -108,6 +109,11 @@ export default class App extends React.Component<AppProps, AppState> {
     if (generateparameters === null) {
       //
     }
+    let ischecked = localStorage.getItem("ischecked");
+    let ischeckedbool = false;
+    if (ischecked === "true") {
+      ischeckedbool = true;
+    }
     this.state = {
       generatedText: "",
       generatedTextChinese: "",
@@ -127,6 +133,7 @@ export default class App extends React.Component<AppProps, AppState> {
       translationparameters: translationparameters,
       testtext: "",
       openaiapikeysaved: openaiapikey,
+      ischecked: ischeckedbool,
     };
   }
 
@@ -316,7 +323,7 @@ export default class App extends React.Component<AppProps, AppState> {
     if (originalsaved === "") {
       //
     } else {
-      originalsaved = "发件人的邮件的内容如下:" + originalsaved;
+      originalsaved = "我收到的邮件的内容如下:" + originalsaved;
     }
     let generateparameters = localStorage.getItem("generateparameters");
     if (generateparameters === "" || generateparameters === null) {
@@ -324,39 +331,70 @@ export default class App extends React.Component<AppProps, AppState> {
     } else {
       generateparameters = "其他要求是:" + generateparameters;
     }
+    let messagesarr = []; //根据选择与否是否结合原文构建邮件
+    messagesarr.push({
+      role: "system",
+      content: "You are a helpful assistant that can help users to send simple email." + generateparameters,
+      //content: "You are a helpful assistant that can help users to create professional business content.",
+    });
+    if (this.state.ischecked) {
+      messagesarr.push({
+        role: "user",
+        content: originalsaved,
+      });
+      messagesarr.push({
+        role: "assistant",
+        content: "ok.",
+      });
+    }
+    messagesarr.push({
+      role: "user",
+      content: "对于我收到的邮件，我想用于回复的主要内容如下:" + current.state.startText,
+    });
+    if (this.state.ischecked) {
+      messagesarr.push({
+        role: "assistant",
+        content: "ok.",
+      });
+      messagesarr.push({
+        role: "user",
+        content: "结合发件人的邮件内容根据我提供的回复信息进行回复.",
+      });
+    }
     const response = await openai.createChatCompletion({
       //model: "gpt-3.5-turbo",
       model: "gpt-4",
-      messages: [
-        {
-          role: "system",
-          content: "You are a helpful assistant that can help users to send simple email." + generateparameters,
-          //content: "You are a helpful assistant that can help users to create professional business content.",
-        },
-        {
-          role: "user",
-          content: originalsaved,
-        },
-        {
-          role: "assistant",
-          content: "ok.",
-        },
-        {
-          role: "user",
-          content: "我想用于回复的邮件主要内容如下:" + current.state.startText,
-        },
-        // {
-        //   role: "assistant",
-        //   content: "ok.",
-        // },
-        // {
-        //   role: "user",
-        //   content: "结合发件人的邮件内容根据我提供的回复信息进行回复.",
-        // },
-      ],
+      messages: messagesarr,
+      // messages: [
+      //   {
+      //     role: "system",
+      //     content: "You are a helpful assistant that can help users to send simple email." + generateparameters,
+      //     //content: "You are a helpful assistant that can help users to create professional business content.",
+      //   },
+      //   {
+      //     role: "user",
+      //     content: originalsaved,
+      //   },
+      //   {
+      //     role: "assistant",
+      //     content: "ok.",
+      //   },
+      //   {
+      //     role: "user",
+      //     content: "我想用于回复的邮件主要内容如下:" + current.state.startText,
+      //   },
+      //   {
+      //     role: "assistant",
+      //     content: "ok.",
+      //   },
+      //   {
+      //     role: "user",
+      //     content: "结合发件人的邮件内容根据我提供的回复信息进行回复.",
+      //   },
+      // ],
     });
-    current.setState({ generatedText: originalsaved + response.data.choices[0].message.content });
-
+    // current.setState({ generatedText: originalsaved + response.data.choices[0].message.content });
+    current.setState({ generatedText: response.data.choices[0].message.content });
     const messages1: ChatCompletionRequestMessage[] = [
       {
         role: "system",
@@ -423,6 +461,12 @@ export default class App extends React.Component<AppProps, AppState> {
       localStorage.setItem("translationparameters", this.state.translationparameters);
       localStorage.setItem("summaryparameters", this.state.summaryparameters);
       localStorage.setItem("generateparameters", this.state.generateparameters);
+      if (this.state.ischecked === true) {
+        localStorage.setItem("ischecked", "true");
+      } else {
+        localStorage.setItem("ischecked", "false");
+      }
+
       this.setState({ isLoading: false });
     } catch (error) {
       this.setState({ summary: error, isLoading: false });
@@ -921,7 +965,11 @@ export default class App extends React.Component<AppProps, AppState> {
           />
           <p>
             <label>
-              <input type="checkbox" />
+              <input
+                type="checkbox"
+                checked={this.state.ischecked}
+                onChange={(e) => this.setState({ ischecked: e.target.checked })}
+              />
               结合邮件原文生成邮件
             </label>
           </p>
