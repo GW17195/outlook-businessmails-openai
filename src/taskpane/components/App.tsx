@@ -30,6 +30,7 @@ export interface AppState {
   translation: string;
   originalsaved: string;
   translationparameters: string;
+  generateparameters: string;
   testtext: string;
   openaiapikeysaved: string;
 }
@@ -103,6 +104,10 @@ export default class App extends React.Component<AppProps, AppState> {
     if (summaryparameters === null) {
       //
     }
+    let generateparameters = localStorage.getItem("generateparameters");
+    if (generateparameters === null) {
+      //
+    }
     this.state = {
       generatedText: "",
       generatedTextChinese: "",
@@ -116,6 +121,7 @@ export default class App extends React.Component<AppProps, AppState> {
       isSettingActive: isSettingActive,
       summary: tmpsummary,
       summaryparameters: summaryparameters,
+      generateparameters: generateparameters,
       translation: tmptraslation,
       originalsaved: tmporiginalsaved,
       translationparameters: translationparameters,
@@ -312,13 +318,19 @@ export default class App extends React.Component<AppProps, AppState> {
     } else {
       originalsaved = "发件人的邮件的内容如下:" + originalsaved;
     }
+    let generateparameters = localStorage.getItem("generateparameters");
+    if (generateparameters === "" || generateparameters === null) {
+      //
+    } else {
+      generateparameters = "其他要求是:" + generateparameters;
+    }
     const response = await openai.createChatCompletion({
       //model: "gpt-3.5-turbo",
       model: "gpt-4",
       messages: [
         {
           role: "system",
-          content: "You are a helpful assistant that can help users to send simple email.",
+          content: "You are a helpful assistant that can help users to send simple email." + generateparameters,
           //content: "You are a helpful assistant that can help users to create professional business content.",
         },
         {
@@ -331,16 +343,16 @@ export default class App extends React.Component<AppProps, AppState> {
         },
         {
           role: "user",
-          content: "我想用于回复的邮件内容如下:" + current.state.startText,
+          content: "我想用于回复的邮件主要内容如下:" + current.state.startText,
         },
-        {
-          role: "assistant",
-          content: "ok.",
-        },
-        {
-          role: "user",
-          content: "结合发件人的邮件内容根据我提供的回复信息进行回复.",
-        },
+        // {
+        //   role: "assistant",
+        //   content: "ok.",
+        // },
+        // {
+        //   role: "user",
+        //   content: "结合发件人的邮件内容根据我提供的回复信息进行回复.",
+        // },
       ],
     });
     current.setState({ generatedText: originalsaved + response.data.choices[0].message.content });
@@ -410,6 +422,7 @@ export default class App extends React.Component<AppProps, AppState> {
       localStorage.setItem("openaiapikey", this.state.openaiapikeysaved);
       localStorage.setItem("translationparameters", this.state.translationparameters);
       localStorage.setItem("summaryparameters", this.state.summaryparameters);
+      localStorage.setItem("generateparameters", this.state.generateparameters);
       this.setState({ isLoading: false });
     } catch (error) {
       this.setState({ summary: error, isLoading: false });
@@ -901,10 +914,17 @@ export default class App extends React.Component<AppProps, AppState> {
             className="ms-welcome"
             style={{ fontSize: "15px" }}
             placeholder="请输入生成邮件参数"
-            defaultValue={this.state.translation}
+            defaultValue={this.state.generateparameters}
+            onChange={(e) => this.setState({ generateparameters: e.target.value })}
             rows={5}
             cols={40}
           />
+          <p>
+            <label>
+              <input type="checkbox" />
+              结合邮件原文生成邮件
+            </label>
+          </p>
           <p>
             <DefaultButton
               className="ms-welcome__action"
