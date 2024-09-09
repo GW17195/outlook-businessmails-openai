@@ -128,7 +128,7 @@ export default class App extends React.Component<AppProps, AppState> {
     this.state = {
       generatedText: tmpgeneratedText,
       generatedTextChinese: tmpgeneratedTextChinese,
-      startText: "",
+      startText: tmpstartTextSave,
       startTextSave: tmpstartTextSave,
       finalMailText: "",
       isLoading: false,
@@ -985,7 +985,7 @@ export default class App extends React.Component<AppProps, AppState> {
               iconProps={{ iconName: "ChevronRight" }}
               onClick={this.generateText}
             >
-              生成英文邮件
+              生成英文邮件 
             </DefaultButton>
           </p>
           <this.ProgressSection />
